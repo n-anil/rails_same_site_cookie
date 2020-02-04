@@ -35,11 +35,14 @@ module RailsSameSiteCookie
     end
 
     def is_ios_version?(major)
-      user_agent.os&.family == 'iOS' and user_agent.os&.version&.major == major
+      user_agent.os.present? && user_agent.os.family == 'iOS' &&
+        user_agent.os.version.present? && user_agent.os.version.major == major
     end
 
     def is_mac_osx_version?(major,minor)
-      user_agent.os&.family == 'Mac OS X' and user_agent.os&.version&.major == major and user_agent.os&.version&.minor == minor
+      user_agent.os.present? && user_agent.os.family ==  'Mac OS X' &&
+        user_agent.os.version.present?  && user_agent.os.version.major == major &&
+        user_agent.os.version.minor == minor
     end
 
     def is_safari?
@@ -62,7 +65,8 @@ module RailsSameSiteCookie
       match = /Chrom[^\/]+\/(\d+)[\.\d]*/.match(@user_agent_str)
       return false unless match
       version = match[1].to_i
-      return range.include?(version)
+
+      range.include?(version)
     end
 
     def is_uc_browser?
@@ -70,14 +74,18 @@ module RailsSameSiteCookie
     end
 
     def is_uc_version_at_least?(major,minor,build)
-      if user_agent.version&.major&.to_i == major
-        if user_agent.version&.minor&.to_i == minor
-          return user_agent.version&.patch&.to_i >= build
+      if user_agent.version.present? && user_agent.version.major.present?
+        majorVersion = user_agent.version.major.present? ? user_agent.version.major.to_i : 0
+        minorVersion = user_agent.version.minor.present? ? user_agent.version.minor.to_i : 0
+        patchVersion = user_agent.version.patch.present? ? user_agent.version.patch.to_i : 0
+
+        if majorVersion == major && minorVersion == minor
+          patchVersion >= build
+        elsif majorVersion == major
+          minorVersion > minor
         else
-          return user_agent.version&.minor&.to_i > minor
+          majorVersion > major
         end
-      else
-        return user_agent.version&.major&.to_i > major
       end
     end
 
