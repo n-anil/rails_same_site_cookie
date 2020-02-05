@@ -13,6 +13,7 @@ module RailsSameSiteCookie
       status, headers, body = @app.call(env)
 
       regex = RailsSameSiteCookie.configuration.user_agent_regex
+
       if headers['Set-Cookie'].present? and (regex.nil? or regex.match(env['HTTP_USER_AGENT']))
         parser = UserAgentChecker.new(env['HTTP_USER_AGENT'])
         if parser.send_same_site_none?
